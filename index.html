@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="jp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        body::-webkit-scrollbar{
+            display:none;
+        }
+        .container {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+        section {
+            width: 100%;
+            height: 100vh;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(200px);
+            transition: 0.5s all;
+            background-image: linear-gradient(90deg, #e9e9e9, #9b9b9b);
+        }
+        section:nth-child(odd) {
+            background-image: linear-gradient(90deg, #9b9b9b,#e9e9e9);
+        }
+        footer {
+            width: 100%;
+            height: 100vh;
+            background-color: #000;
+        }
+        .is-active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .menu {
+            position: fixed;
+            z-index: 100;
+            top: 50%;
+            left: 40px;
+            transform: translateY(-50%);
+        }
+        li {
+            padding: 10px 0;
+            list-style: none;
+        }
+        a {
+            color: #414141;
+            text-decoration: none;
+            font-size: 20px;
+        }
+        h2 {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-50%);
+            font-size: 40px;
+            letter-spacing: 0.1em;
+            color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="menu">
+            <ul>
+                <li><a href="#section-1">TOP</a></li>
+                <li><a href="#section-2">ABOUT</a></li>
+                <li><a href="#section-3">SERVICE</a></li>
+                <li><a href="#section-4">WORK</a></li>
+                <li><a href="#section-5">CONTACT</a></li>
+            </ul>
+        </div>
+        <section class="is-active" id="section-1">
+            <h2>TOP</h2>
+        </section>
+        <section id="section-2">
+            <h2>ABOUT</h2>
+        </section>
+        <section id="section-3">
+            <h2>SERVICE</h2>
+        </section>
+        <section id="section-4">
+            <h2>WORK</h2>
+        </section>
+        <section id="section-5">
+            <h2>CONTACT</h2>
+        </section>
+    </div>
+    <footer>
+        <h3>test</h3>
+    </footer>
+    <script>
+        var activeSectionIndex = 0;
+        var body = document.querySelector('body');
+        var sections = document.querySelectorAll('section');
+        var flag = true;
+        var isWheeling = false;
+        var menuLinks = document.querySelectorAll('.menu a');
+
+        body.style.overflow = "hidden";
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+        scrollToTop();
+
+        window.addEventListener('wheel', function(event) {
+            if (flag && !isWheeling) {
+                if (event.deltaY > 0 && activeSectionIndex < sections.length - 1) {
+                    activeSectionIndex++;
+                    sections.forEach(function(section, index) {
+                        if (index === activeSectionIndex) {
+                            section.classList.add('is-active');
+                        }
+                    });
+                } else if (event.deltaY < 0 && activeSectionIndex > 0) {
+                    activeSectionIndex--;
+                    sections.forEach(function(section, index) {
+                        if (index === activeSectionIndex + 1) {
+                            section.classList.remove('is-active');
+                        }
+                    });
+                }
+                isWheeling = true;
+                setTimeout(function() {
+                    isWheeling = false;
+                }, 500);
+            }
+
+            if (activeSectionIndex === sections.length - 1) {
+                if (event.deltaY > 0) {
+                    body.style.overflowY = "scroll";
+                    flag = false;
+                } else if (event.deltaY < 0 && window.pageYOffset === 0) {
+                    body.style.overflowY = "hidden";
+                    flag = true;
+                }
+            } else {
+                body.style.overflowY = "hidden";
+                flag = true;
+            }
+        });
+
+        menuLinks.forEach(function(link) {
+            link.addEventListener('click', function(event) {
+                event.preventDefault();
+                scrollToTop();
+                var targetId = this.getAttribute('href');
+                var sectionNumber = Number(targetId.match(/\d+$/)[0]);
+
+                if (activeSectionIndex < sectionNumber) {
+                    activeSectionIndex = sectionNumber - 1;
+                    sections.forEach(function(section, index) {
+                        if (index <= activeSectionIndex) {
+                            section.classList.add('is-active');
+                        }
+                    });
+                } else if (activeSectionIndex >= sectionNumber) {
+                    activeSectionIndex = sectionNumber - 1;
+                    sections.forEach(function(section, index) {
+                        if (index > activeSectionIndex) {
+                            section.classList.remove('is-active');
+                        }
+                    });
+                }
+
+                if (activeSectionIndex === sections.length - 1) {
+                    body.style.overflowY = "scroll";
+                    flag = false;
+                } else {
+                    body.style.overflowY = "hidden";
+                    flag = true;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
